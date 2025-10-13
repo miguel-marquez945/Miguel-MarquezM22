@@ -1,106 +1,84 @@
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
+//import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-
 import com.example.Calculator;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 
 public class CalculatorTestCase {
 
-    private Calculator calculator;
+    private Calculator calculadora;
 
     @BeforeEach
-    void setUp() {
-        calculator = new Calculator();
+    void setup() {
+        calculadora = new Calculator();
     }
 
-    // 🔹 multiply
     @Test
-    @DisplayName("Multiplicación normal (2 * 3 = 6)")
     void testMultiplyNormal() {
-        assertEquals(6, calculator.multiply(2, 3));
+        assertEquals(6, calculadora.multiply(2, 3));
     }
 
     @Test
-    @DisplayName("Multiplicación con cero")
-    void testMultiplyWithZero() {
-        assertEquals(0, calculator.multiply(0, 5));
+    void testMultiplyConCero() {
+        assertEquals(0, calculadora.multiply(0, 7));
+        assertEquals(0, calculadora.multiply(9, 0));
     }
 
     @Test
-    @DisplayName("Multiplicación con números negativos")
-    void testMultiplyWithNegatives() {
-        assertEquals(-15, calculator.multiply(-3, 5));
+    void testMultiplyConNegativos() {
+        assertEquals(-12, calculadora.multiply(-3, 4));
+        assertEquals(12, calculadora.multiply(-3, -4));
     }
 
-    // 🔹 concat
     @Test
-    @DisplayName("Concatenación de dos cadenas normales")
     void testConcatNormal() {
-        assertEquals("Miguel, Marquez", calculator.concat("Miguel, ", "Marquez"));
+        assertEquals("HolaMundo", calculadora.concat("Hola", "Mundo"));
     }
 
     @Test
-    @DisplayName("Concatenación con parámetro null devuelve 'empty'")
-    void testConcatWithNull() {
-        assertEquals("empty", calculator.concat(null, "Mundo"));
-        assertEquals("empty", calculator.concat("Hola", null));
+    void testConcatConNull() {
+        assertEquals(Calculator.EMPTY, calculadora.concat(null, "Mundo"));
+        assertEquals(Calculator.EMPTY, calculadora.concat("Hola", null));
     }
 
-    // 🔹 sum
     @Test
-    @DisplayName("Suma normal")
     void testSumNormal() {
-        assertEquals(9.0, calculator.sum(4.0, 5.0));
+        assertEquals(9.0, calculadora.sum(4, 5));
     }
 
     @Test
-    @DisplayName("Suma con valores negativos")
-    void testSumWithNegatives() {
-        assertEquals(-1.0, calculator.sum(3.0, -4.0));
-    }
-
-    // 🔹 discount
-    @Test
-    @DisplayName("Se aplica un descuento válido")
-    void testDiscountValid() {
-        assertEquals(80.0, calculator.discount(100.0, 0.2)); // 20% descuento
+    void testSumConNegativos() {
+        assertEquals(-1.0, calculadora.sum(4, -5));
     }
 
     @Test
-    @DisplayName("Descuentos del 0% y 100%")
-    void testDiscountZeroAndFull() {
-        assertEquals(100.0, calculator.discount(100.0, 0.0));
-        assertEquals(0.0, calculator.discount(100.0, 1.0));
+    void testDiscountValido() {
+        assertEquals(80.0, calculadora.discount(100, 20));
     }
 
     @Test
-    @DisplayName("Porcentaje inválido (<0 o >1) lanza IllegalArgumentException")
-    void testDiscountInvalid() {
-        assertThrows(IllegalArgumentException.class,
-                () -> calculator.discount(100.0, -0.5));
-        assertThrows(IllegalArgumentException.class,
-                () -> calculator.discount(100.0, 1.5));
-    }
-
-    // 🔹 calculateTotal
-    @Test
-    @DisplayName("Lista de importes devuelve la suma correcta")
-    void testCalculateTotalValid() {
-        List<Double> amounts = Arrays.asList(10.0, 20.0, 30.0);
-        assertEquals(60.0, calculator.calculateTotal(amounts));
+    void testDiscountLimites() {
+        assertEquals(100.0, calculadora.discount(100, 0));
+        assertEquals(0.0, calculadora.discount(100, 100));
     }
 
     @Test
-    @DisplayName("Lista vacía devuelve 0.0")
-    void testCalculateTotalEmpty() {
-        List<Double> amounts = Collections.emptyList();
-        assertEquals(0.0, calculator.calculateTotal(amounts));
+    void testDiscountInvalido() {
+        assertThrows(IllegalArgumentException.class, () -> calculadora.discount(100, -5));
+        assertThrows(IllegalArgumentException.class, () -> calculadora.discount(100, 120));
+    }
+
+    @Test
+    void testCalculateTotalNormal() {
+        assertEquals(60.0, calculadora.calculateTotal(Arrays.asList(10.0, 20.0, 30.0)));
+    }
+
+    @Test
+    void testCalculateTotalListaVacia() {
+        assertEquals(0.0, calculadora.calculateTotal(Collections.emptyList()));
     }
 }
