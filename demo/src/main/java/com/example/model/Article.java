@@ -1,75 +1,51 @@
 package com.example.model;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-import com.example.Calculator;
-
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Article {
-    private String name;
-    private int quantity;
-    private double price;
-    private double discount;
 
-    public Article(String name, int quantity, double price, double discount) {
-        this.name = name;
-        this.quantity = quantity;
-        this.price = price;
-        this.discount = discount;
-    }
+    @JsonProperty("name")
+    @JsonAlias({"nombre"})
+    private String nombre;
 
-    public String getName() {
-        return name;
-    }
+    @JsonProperty("quantity")
+    @JsonAlias({"cantidad"})
+    private int cantidad;
 
-    public int getQuantity() {
-        return quantity;
-    }
+    @JsonProperty("price")
+    @JsonAlias({"precio"})
+    private double precio;
 
-    public double getPrice() {
-        return price;
-    }
+    @JsonProperty("discount")
+    @JsonAlias({"descuento"})
+    private double descuento;
 
-    public double getDiscount() {
-        return discount;
-    }
+    public Article() {}
 
-    public void setName(String name) {
-        this.name = name;
-    }
+    public String getNombre() { return nombre; }
+    public void setNombre(String nombre) { this.nombre = nombre; }
 
-    public void setQuantity(int quantity) {
-        this.quantity = quantity;
-    }
+    public int getCantidad() { return cantidad; }
+    public void setCantidad(int cantidad) { this.cantidad = cantidad; }
 
-    public void setPrice(double price) {
-        this.price = price;
-    }
+    public double getPrecio() { return precio; }
+    public void setPrecio(double precio) { this.precio = precio; }
 
-    public void setDiscount(double discount) {
-        this.discount = discount;
-    }
+    public double getDescuento() { return descuento; }
+    public void setDescuento(double descuento) { this.descuento = descuento; }
 
-    //funciones
-    public double getGrossAmount() {
-        Calculator calculator = new Calculator();
-        double grossAmount = calculator.multiplyIntDouble(quantity, price);
-
-        return grossAmount;
-    }
+    public double getGrossAmount() { return cantidad * precio; }
 
     public double getDiscountedAmount() {
-        Calculator calculator = new Calculator();
-        double discountedAmount = calculator.discount(getGrossAmount(), discount);
-
-        return discountedAmount;
+        return getGrossAmount() * (1.0 - (descuento / 100.0));
     }
 
     @Override
     public String toString() {
-        return "- Artículo: " + name + "\n" +
-                "\tCantidad: " + quantity + "\n" +
-                "\tPrecio unitario: " + price + "\n" +
-                "\tDescuento: " + discount + "%\n" +
-                "\tTotal bruto: " + getGrossAmount() + "\n" +
-                "\tTotal con descuento: " + getDiscountedAmount();
+        return "Article{nombre='" + nombre + "', cantidad=" + cantidad +
+               ", precio=" + precio + ", descuento=" + descuento + "}";
     }
 }

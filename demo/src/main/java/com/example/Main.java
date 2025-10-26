@@ -1,34 +1,46 @@
-
 package com.example;
 
-import com.example.model.Article;
 import com.example.model.Order;
-
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Arrays;
+import java.io.InputStream;
 import java.util.List;
 
 public class Main {
 
     private static final Logger log = LoggerFactory.getLogger(Main.class);
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
+        // (1) Fuerza nivel DEBUG por si no se cargó logback.xml
+        try {
+            ch.qos.logback.classic.Logger root =
+                (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(org.slf4j.Logger.ROOT_LOGGER_NAME);
+            root.setLevel(ch.qos.logback.classic.Level.DEBUG);
+        } catch (Throwable ignore) {
+            // Si no está logback, no pasa nada; seguirá al nivel por defecto
+        }
 
-        log.info("Starting Order Managment System. . .");
-        System.out.println();
+        log.info("Starting Order Management System...");
 
-        Article articleRaton = new Article("Ratón", 13, 10.99, 15.00);
+        ObjectMapper mapper = new ObjectMapper().findAndRegisterModules();
 
-        System.out.println(articleRaton.getGrossAmount());
-        System.out.println(articleRaton.getDiscountedAmount());
-        System.out.println();
+        // Cargar /orders.json desde resources
+        try (InputStream is = Main.class.getResourceAsStream("/orders.json")) {
+            if (is == null) {
+                throw new IllegalStateException("No se encontró /orders.json en src/main/resources");
+            }
 
-        Article articleTeclado = new Article("Teclado", 7, 23.75, 10.00);
+            // Parsear a List<Order>
+            List<Order> orders = mapper.readValue(is, new TypeReference<List<Order>>() {});
+            log.info("Pedidos leídos: {}", orders.size());
 
-        List<Article> articles1 = Arrays.asList(articleRaton, articleTeclado);
-        Order order1 = new Order("A12345", articles1);
-        System.out.println(order1.toString());
+            // Requisito: un DEBUG por cada pedido
+            for (Order o : orders) {
+                log.debug("Loaded order: {}", o.getId());
+            }
+        }
     }
 }

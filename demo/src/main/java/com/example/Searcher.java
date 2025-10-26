@@ -1,54 +1,57 @@
 package com.example;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 public class Searcher {
 
-    // checks if the phrase exists in the list
-    public boolean searchExactPhrase(String phrase, List<String> list) {
-        for (String item : list) {
-            if (item.equals(phrase)) {
-                return true;
-            } else {
-                return false;
-            }
+    // Devuelve true si la frase aparece EXACTAMENTE (match completo) en la lista
+    public static boolean searchExactPhrase(String phrase, List<String> list) {
+        if (phrase == null || list == null) return false;
+        for (String s : list) {
+            if (phrase.equals(s)) return true;
         }
         return false;
     }
 
-    // Simple contains check
-    public boolean searchWord(String word, List<String> list) {
-        return list.contains(word);
-    }
-
-    // Get element by index safely
-    public String getWordByIndex(List<String> list, int index) {
-        if (index >= 0 && index < list.size()) {
-            return list.get(index);
+    // Devuelve true si la palabra aparece EXACTA en la lista
+    public static boolean searchWord(String word, List<String> list) {
+        if (word == null || list == null) return false;
+        for (String s : list) {
+            if (word.equals(s)) return true;
         }
-        return null; // Avoid IndexOutOfBounds
+        return false;
     }
 
-    // New: find elements starting with a given prefix
-    public List<String> searchByPrefix(String prefix, List<String> list) {
-        List<String> results = new ArrayList<>();
-        for (String element : list) {
-            if (element.startsWith(prefix)) {
-                results.add(element);
+    // Devuelve el elemento por índice; si el índice es inválido, devuelve null
+    public static String getWordByIndex(List<String> list, int index) {
+        if (list == null || index < 0 || index >= list.size()) return null;
+        return list.get(index);
+    }
+
+    // Devuelve las cadenas que EMPIEZAN por el prefijo (case-sensitive)
+    public static List<String> searchByPrefix(String prefix, List<String> list) {
+        if (prefix == null || list == null) return Collections.emptyList();
+        List<String> result = new ArrayList<>();
+        for (String s : list) {
+            if (s != null && s.startsWith(prefix)) {
+                result.add(s);
             }
         }
-        return results;
+        return result;
     }
 
-    // New: filter all elements that contain a given keyword
-    public List<String> filterByKeyword(String keyword, List<String> list) {
-        List<String> results = new ArrayList<>();
-        for (String element : list) {
-            if (element.contains(keyword)) {
-                results.add(element);
+    // Devuelve las cadenas que CONTIENEN la keyword (case-sensitive)
+    public static List<String> filterByKeyword(String keyword, List<String> list) {
+        if (keyword == null || list == null) return Collections.emptyList();
+        List<String> result = new ArrayList<>();
+        for (String s : list) {
+            if (s != null && s.contains(keyword)) {
+                result.add(s);
             }
         }
-        return results;
+        return result;
     }
 }

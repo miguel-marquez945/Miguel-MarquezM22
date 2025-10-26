@@ -1,88 +1,47 @@
 package com.example.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonAlias;
+
+import java.util.ArrayList;
 import java.util.List;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Order {
 
+    @JsonProperty("id")
     private String id;
-    private List<Article> articles;
 
-    public Order(String id, List<Article> articles) {
-        this.id = id;
-        this.articles = articles;
-    }
+    // El JSON trae "articles"; opcionalmente aceptamos "items" también.
+    @JsonProperty("articles")
+    @JsonAlias({"items"})
+    private List<Article> articulos = new ArrayList<>();
 
-    public String getId() {
-        return id;
-    }
+    public Order() {}
 
-    public List<Article> getArticles() {
-        return articles;
-    }
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
 
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public void setArticles(List<Article> articles) {
-        this.articles = articles;
+    public List<Article> getArticulos() { return articulos; }
+    public void setArticulos(List<Article> articulos) {
+        this.articulos = (articulos == null) ? new ArrayList<>() : articulos;
     }
 
     public double getGrossTotal() {
-        if (articles == null || articles.isEmpty()) {
-            return 0.0;
-        }
-
-        double total = 0;
-        for (Article article : articles) {
-            total += article.getGrossAmount();
-        }
-
+        double total = 0.0;
+        for (Article a : articulos) if (a != null) total += a.getGrossAmount();
         return total;
     }
 
     public double getDiscountedTotal() {
-        if (articles == null || articles.isEmpty()) {
-            return 0.0;
-        }
-
-        double total = 0;
-        for (Article article : articles) {
-            total += article.getDiscountedAmount();
-        }
-
+        double total = 0.0;
+        for (Article a : articulos) if (a != null) total += a.getDiscountedAmount();
         return total;
     }
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("Order ID: ").append(id).append("\n");
-
-        int numPosiciones = (articles != null) ? articles.size() : 0;
-        sb.append("Número de posiciones: ").append(numPosiciones).append("\n");
-
-        int totalUnidades = 0;
-        if (articles != null) {
-            for (Article a : articles) {
-                totalUnidades += a.getQuantity();
-            }
-        }
-        sb.append("Cantidad total de unidades: ").append(totalUnidades).append("\n");
-
-        sb.append("Valor total bruto: ").append(getGrossTotal()).append("\n");
-        sb.append("Valor total con descuento: ").append(getDiscountedTotal()).append("\n");
-
-        sb.append("Detalles de artículos:\n");
-        if (articles != null && !articles.isEmpty()) {
-            for (Article article : articles) {
-                sb.append(article.toString()).append("\n");
-            }
-        } else {
-            sb.append("...Error. No hay artículos... \n");
-        }
-
-        return sb.toString();
+        return "Order{id='" + id + "', items=" + (articulos == null ? 0 : articulos.size()) + "}";
     }
 }

@@ -3,8 +3,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
 
-import com.example.model.Order;
 import com.example.model.Article;
+import com.example.model.Order;
 
 import java.util.Collections;
 import java.util.List;
