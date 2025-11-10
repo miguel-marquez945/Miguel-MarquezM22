@@ -7,45 +7,34 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Article {
 
-    @JsonProperty("name")
-    @JsonAlias({"nombre"})
-    private String nombre;
+    @JsonProperty("name")     @JsonAlias({"nombre"})
+    private String name;
 
-    @JsonProperty("quantity")
-    @JsonAlias({"cantidad"})
-    private int cantidad;
+    @JsonProperty("quantity") @JsonAlias({"cantidad"})
+    private int quantity;
 
-    @JsonProperty("price")
-    @JsonAlias({"precio"})
-    private double precio;
+    @JsonProperty("price")    @JsonAlias({"precio"})
+    private double price;
 
-    @JsonProperty("discount")
-    @JsonAlias({"descuento"})
-    private double descuento;
+    @JsonProperty("discount") @JsonAlias({"descuento"})
+    private double discount;
 
     public Article() {}
 
-    public String getNombre() { return nombre; }
-    public void setNombre(String nombre) { this.nombre = nombre; }
+    // Getters/Setters en inglés (no duplicar con español)
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
 
-    public int getCantidad() { return cantidad; }
-    public void setCantidad(int cantidad) { this.cantidad = cantidad; }
+    public int getQuantity() { return quantity; }
+    public void setQuantity(int quantity) { this.quantity = quantity; }
 
-    public double getPrecio() { return precio; }
-    public void setPrecio(double precio) { this.precio = precio; }
+    public double getPrice() { return price; }
+    public void setPrice(double price) { this.price = price; }
 
-    public double getDescuento() { return descuento; }
-    public void setDescuento(double descuento) { this.descuento = descuento; }
+    public double getDiscount() { return discount; }
+    public void setDiscount(double discount) { this.discount = discount; }
 
-    public double getGrossAmount() { return cantidad * precio; }
-
-    public double getDiscountedAmount() {
-        return getGrossAmount() * (1.0 - (descuento / 100.0));
-    }
-
-    @Override
-    public String toString() {
-        return "Article{nombre='" + nombre + "', cantidad=" + cantidad +
-               ", precio=" + precio + ", descuento=" + descuento + "}";
-    }
+    // Cálculos usados por el controlador/vista
+    public double grossAmount() { return quantity * price; }
+    public double discountedAmount() { return grossAmount() * (1.0 - discount / 100.0); }
 }

@@ -10,8 +10,11 @@
   <packaging>jar</packaging>
 
   <properties>
-    <maven.compiler.source>17</maven.compiler.source>
-    <maven.compiler.target>17</maven.compiler.target>
+  <!-- Compilar con JDK 21 (target Java 21 / latest LTS) -->
+  <maven.compiler.source>21</maven.compiler.source>
+  <maven.compiler.target>21</maven.compiler.target>
+  <maven.compiler.release>21</maven.compiler.release>
+
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
     <!-- Versiones -->
@@ -21,7 +24,7 @@
   </properties>
 
   <dependencies>
-    <!-- JSON: Jackson (necesario para ObjectMapper y TypeReference) -->
+    <!-- JSON: Jackson -->
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
@@ -33,14 +36,14 @@
       <version>${jackson.version}</version>
     </dependency>
 
-    <!-- Logging: Logback (ya incluye slf4j-api de forma compatible) -->
+    <!-- Logging: Logback (incluye SLF4J compatible) -->
     <dependency>
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-classic</artifactId>
       <version>${logback.version}</version>
     </dependency>
 
-    <!-- Tests: JUnit 5 (único que necesitas) -->
+    <!-- Tests: JUnit 5 -->
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter</artifactId>
@@ -51,17 +54,50 @@
 
   <build>
     <plugins>
-      <!-- Ejecutar tu Main con Maven -->
+      <!-- Compiler (respeta las props anteriores) -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.11.0</version>
+        <configuration>
+          <release>${maven.compiler.release}</release>
+        </configuration>
+      </plugin>
+
+      <!-- Enforcer: hint/recommend JDK 21 for contributors -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-enforcer-plugin</artifactId>
+        <version>3.1.0</version>
+        <executions>
+          <execution>
+            <id>enforce-java</id>
+            <goals>
+              <goal>enforce</goal>
+            </goals>
+            <configuration>
+              <rules>
+                <requireJavaVersion>
+                  <version>21</version>
+                </requireJavaVersion>
+              </rules>
+              <fail>false</fail>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <!-- Ejecutar Main -->
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>exec-maven-plugin</artifactId>
-        <version>3.1.0</version>
+        <version>3.5.0</version>
         <configuration>
           <mainClass>com.example.Main</mainClass>
         </configuration>
       </plugin>
 
-      <!-- Para que JUnit 5 funcione correctamente -->
+      <!-- Surefire para JUnit 5 -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
