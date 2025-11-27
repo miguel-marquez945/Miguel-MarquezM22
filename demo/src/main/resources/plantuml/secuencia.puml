@@ -1,0 +1,27 @@
+@startuml SequenceDiagram
+
+actor "Usuario" as User
+boundary "OrderView" as View
+control "OrderController" as Controller
+entity "Order" as Order
+entity "Article" as Article
+entity "Calculator" as Calculator
+
+User -> View: introducirIdPedido(id)
+View -> Controller: visualizeOrder(id)
+
+Controller -> Order: getArticles()
+Order --> Controller: listaArticulos
+
+loop para cada artículo
+    Controller -> Article: obtenerDatos()
+    Article --> Controller: datosArtículo
+
+    Controller -> Calculator: discount(importeArtículo, descuento)
+    Calculator --> Controller: importeConDescuento
+end
+
+Controller -> View: mostrarPedido(order, totales)
+View --> User: mostrarDatosEnPantalla()
+
+@enduml

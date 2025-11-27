@@ -1,0 +1,20 @@
+@startuml UseCaseDiagram
+
+left to right direction
+
+actor "Usuario" as User
+
+rectangle "Sistema de pedidos" {
+    usecase "Visualizar pedido" as UC_View
+    usecase "Calcular total bruto" as UC_Gross
+    usecase "Calcular total con descuento" as UC_Discount
+    usecase "Buscar palabra/frase" as UC_Search
+}
+
+User --> UC_View
+User --> UC_Search
+
+UC_View .> UC_Gross : <<include>>
+UC_View .> UC_Discount : <<include>>
+
+@enduml

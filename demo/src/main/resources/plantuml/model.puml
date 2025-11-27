@@ -1,0 +1,57 @@
+@startuml ClassDiagram
+
+' ======================
+'     CLASES
+' ======================
+
+class Calculator {
+    + discount(amount :: double, percent :: double) :: double
+    + calculateTotal(amounts :: List<Double>) :: double
+}
+
+class Order {
+    - id :: String
+    - articles :: List<Article>
+
+    + Order()
+    + Order(id :: String, articles :: List<Article>)
+    + getId() :: String
+    + setId(id :: String) :: void
+    + getArticles() :: List<Article>
+    + setArticles(articles :: List<Article>) :: void
+    + getGrossTotal() :: double
+    + getDiscountedTotal() :: double
+    + toString() :: String
+}
+
+class Article {
+    - name :: String
+    - quantity :: int
+    - unitPrice :: double
+    - discount :: double
+    - calculator :: Calculator
+
+    + Article()
+    + Article(name :: String, quantity :: int, unitPrice :: double, discount :: double)
+    + getName() :: String
+    + setName(name :: String) :: void
+    + getQuantity() :: int
+    + setQuantity(quantity :: int) :: void
+    + getUnitPrice() :: double
+}
+
+class Searcher {
+    + searchExactPhrase(phrase :: String, list :: List<String>) :: boolean
+    + searchWord(word :: String, list :: List<String>) :: boolean
+    + getWordByIndex(list :: List<String>, index :: int) :: String
+    + searchByPrefix(prefix :: String, list :: List<String>) :: List<String>
+    + filterByKeyword(keyword :: String, list :: List<String>) :: List<String>
+}
+
+' ======================
+'   RELACIONES
+' ======================
+
+Order "1" *-- "*" Article : articles
+
+@enduml
