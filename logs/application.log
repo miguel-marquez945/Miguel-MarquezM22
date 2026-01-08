@@ -26,3 +26,34 @@
 2025-11-10 19:36:37,730 DEBUG com.example.Main - Loaded order: O004
 2025-11-10 19:36:37,730 DEBUG com.example.Main - Loaded order: O005
 2025-11-10 19:43:37,474 INFO  com.example.Main - Pedidos leídos: 5
+2025-12-09 17:03:55,027 INFO  com.example.Main - Starting Order Management System...
+2025-12-09 17:03:55,468 INFO  com.example.Main - Pedidos leídos: 5
+2025-12-09 17:03:55,469 DEBUG com.example.Main - Loaded order: O001
+2025-12-09 17:03:55,469 DEBUG com.example.Main - Loaded order: O002
+2025-12-09 17:03:55,469 DEBUG com.example.Main - Loaded order: O003
+2025-12-09 17:03:55,469 DEBUG com.example.Main - Loaded order: O004
+2025-12-09 17:03:55,470 DEBUG com.example.Main - Loaded order: O005
+2025-12-09 17:04:12,079 INFO  c.example.controller.OrderController - Order o001 not found
+2025-12-09 17:04:20,967 INFO  c.example.controller.OrderController - Order o0001 not found
+2025-12-09 17:04:21,920 INFO  c.example.controller.OrderController - Order o0001 not found
+2025-12-09 17:04:22,737 INFO  c.example.controller.OrderController - Order o0001 not found
+2025-12-09 17:06:09,391 INFO  com.example.Main - Starting Order Management System...
+2025-12-09 17:06:09,832 INFO  com.example.Main - Pedidos leídos: 5
+2025-12-09 17:06:09,834 DEBUG com.example.Main - Loaded order: O001
+2025-12-09 17:06:09,834 DEBUG com.example.Main - Loaded order: O002
+2025-12-09 17:06:09,834 DEBUG com.example.Main - Loaded order: O003
+2025-12-09 17:06:09,835 DEBUG com.example.Main - Loaded order: O004
+2025-12-09 17:06:09,835 DEBUG com.example.Main - Loaded order: O005
+2025-12-09 17:06:16,430 INFO  c.example.controller.OrderController - Order o001 not found
+2025-12-09 17:06:17,147 INFO  c.example.controller.OrderController - Order o001 not found
+2025-12-09 17:06:17,511 INFO  c.example.controller.OrderController - Order o001 not found
+2025-12-09 17:06:23,805 INFO  c.example.controller.OrderController - Using EUR/USD rate 1.1637 for order O001
+2025-12-09 17:06:49,969 INFO  c.example.controller.OrderController - Using EUR/USD rate 1.1637 for order O002
+2025-12-09 17:06:51,299 INFO  c.example.controller.OrderController - Using EUR/USD rate 1.1637 for order O002
+2025-12-09 17:24:58,992 INFO  com.example.Main - Starting Order Management System...
+2025-12-09 17:24:59,239 INFO  com.example.Main - Pedidos leídos: 5
+2025-12-09 17:24:59,240 DEBUG com.example.Main - Loaded order: O001
+2025-12-09 17:24:59,241 DEBUG com.example.Main - Loaded order: O002
+2025-12-09 17:24:59,241 DEBUG com.example.Main - Loaded order: O003
+2025-12-09 17:24:59,241 DEBUG com.example.Main - Loaded order: O004
+2025-12-09 17:24:59,241 DEBUG com.example.Main - Loaded order: O005

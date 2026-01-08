@@ -1,75 +1,246 @@
-package com.example.controller;
+package com.example.Controller;
 
+import com.example.View.OrderView;
+import com.example.model.Intercambio;
+import com.example.model.Order;
+import com.example.model.OrdersRepository;
+
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.example.model.Order;
-import com.example.service.ExchangeRateService;
-import com.example.view.OrderView;
 
 public class OrderController {
 
-    private static final Logger log = LoggerFactory.getLogger(OrderController.class);
+    private OrderView vista;
+    private List<Order> pedidos;
+    private OrdersRepository repositorio;
+    private Intercambio intercambio;
 
-    // Referencia a la vista
-    private final OrderView view;
-    // Lista de pedidos cargados desde el JSON
-    private final List<Order> orders;
-    // Servicio para consultar el tipo de cambio EUR/USD
-    private final ExchangeRateService exchangeRateService = new ExchangeRateService();
+    public OrderController(OrderView view, List<Order> orders, OrdersRepository repository, Intercambio intercambio) {
+        this.vista = view;
+        this.pedidos = (orders != null) ? orders : new ArrayList<Order>();
+        this.repositorio = repository;
+        this.intercambio = intercambio;
 
-    public OrderController(OrderView view, List<Order> orders) {
-        // Inicializar atributos
-        this.view = view;
-        this.orders = orders;
+        actualizarListaIds();
+        vista.setEditDeleteEnabled(false);
+        vista.displayOrder(null);
 
-        // Añadir listener al botón de búsqueda
-        this.view.getSearchButton().addActionListener(new ActionListener() {
+        vista.getSearchButton().addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                searchOrder();
+                buscarPedido();
+            }
+        });
+
+        vista.getCreateButton().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                crearPedido();
+            }
+        });
+
+        vista.getDeleteButton().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                borrarPedido();
+            }
+        });
+
+        vista.getEditButton().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                editarPedido();
+            }
+        });
+
+        vista.addOrderSelectionListener(new ListSelectionListener() {
+            @Override
+            public void valueChanged(ListSelectionEvent e) {
+                if (!e.getValueIsAdjusting()) {
+                    mostrarPedidoSeleccionado();
+                }
             }
         });
     }
 
-    private void searchOrder() {
-        String id = view.getSearchId();
-        if (id == null || id.isBlank()) {
-            log.warn("Search pressed with empty id");
-            view.displayOrder(null, 0.0);
-            return;
+    private void actualizarListaIds() {
+        List<String> ids = new ArrayList<String>();
+        for (int i = 0; i < pedidos.size(); i++) {
+            Order p = pedidos.get(i);
+            if (p != null && p.getId() != null && p.getId().trim().length() > 0) {
+                ids.add(p.getId());
+            }
         }
+        vista.setOrderIds(ids);
+    }
 
-        // Buscar pedido con ese id
-        Order order = orders.stream()
-                .filter(o -> id.equals(o.getId()))
-                .findFirst()
-                .orElse(null);
-
-        if (order == null) {
-            log.info("Order {} not found", id);
-            view.displayOrder(null, 0.0);
-            return;
+    private boolean idExiste(String id) {
+        if (id == null) return false;
+        for (int i = 0; i < pedidos.size(); i++) {
+            Order p = pedidos.get(i);
+            if (p != null && p.getId() != null && p.getId().equalsIgnoreCase(id)) {
+                return true;
+            }
         }
+        return false;
+    }
 
+    private void guardarCambios() {
         try {
-            double rate = exchangeRateService.getEurUsdRate();
-            order.setUsdRate(rate); // por si se quiere reutilizar
-            log.info("Using EUR/USD rate {} for order {}", rate, id);
-            view.displayOrder(order, rate);
-        } catch (IOException ex) {
-            log.error("IO error getting EUR/USD rate. Showing totals only in EUR", ex);
-            // usamos el usdRate almacenado (por defecto 1.0) como plan B
-            view.displayOrder(order, order.getUsdRate());
-        } catch (InterruptedException ex) {
-            log.error("Interrupted while getting EUR/USD rate", ex);
-            Thread.currentThread().interrupt();
-            view.displayOrder(order, order.getUsdRate());
+            repositorio.guardarPedidos(pedidos);
+        } catch (IOException e) {
+            vista.showError("Error al guardar en el fichero JSON.");
         }
+    }
+
+    private void buscarPedido() {
+        String id = vista.getSearchId();
+
+        if (id == null || id.length() == 0) {
+            vista.displayOrder(null);
+            vista.setEditDeleteEnabled(false);
+            return;
+        }
+
+        Order encontrado = null;
+        for (int i = 0; i < pedidos.size(); i++) {
+            Order p = pedidos.get(i);
+            if (p.getId() != null && p.getId().equalsIgnoreCase(id)) {
+                encontrado = p;
+                break;
+            }
+        }
+
+        if (encontrado == null) {
+            vista.displayOrder(null);
+            vista.setEditDeleteEnabled(false);
+        } else {
+            vista.selectOrderId(encontrado.getId());
+            double tipoCambio = intercambio.obtenerEurUsd();
+            vista.displayOrder(encontrado, tipoCambio);
+            vista.setEditDeleteEnabled(true);
+        }
+    }
+
+    private void mostrarPedidoSeleccionado() {
+        String id = vista.getSelectedOrderId();
+
+        if (id == null) {
+            vista.displayOrder(null);
+            vista.setEditDeleteEnabled(false);
+            return;
+        }
+
+        Order encontrado = null;
+        for (int i = 0; i < pedidos.size(); i++) {
+            Order p = pedidos.get(i);
+            if (p.getId() != null && p.getId().equalsIgnoreCase(id)) {
+                encontrado = p;
+                break;
+            }
+        }
+
+        if (encontrado == null) {
+            vista.displayOrder(null);
+            vista.setEditDeleteEnabled(false);
+        } else {
+            double tipoCambio = intercambio.obtenerEurUsd();
+            vista.displayOrder(encontrado, tipoCambio);
+            vista.setEditDeleteEnabled(true);
+        }
+    }
+
+    private void crearPedido() {
+        List<String> idsExistentes = new ArrayList<String>();
+        for (int i = 0; i < pedidos.size(); i++) {
+            if (pedidos.get(i) != null && pedidos.get(i).getId() != null) {
+                idsExistentes.add(pedidos.get(i).getId());
+            }
+        }
+
+        Order nuevo = vista.showCreateOrderDialog(idsExistentes);
+        if (nuevo == null) return;
+
+        if (idExiste(nuevo.getId())) {
+            vista.showError("El ID ya existe. Debe ser unico.");
+            return;
+        }
+
+        pedidos.add(nuevo);
+        actualizarListaIds();
+        guardarCambios();
+
+        vista.selectOrderId(nuevo.getId());
+        vista.displayOrder(nuevo, intercambio.obtenerEurUsd());
+        vista.setEditDeleteEnabled(true);
+
+        vista.showInfo("Pedido creado y guardado correctamente.");
+    }
+
+    private void borrarPedido() {
+        String id = vista.getSelectedOrderId();
+
+        if (id == null) {
+            vista.showInfo("Selecciona un pedido para borrar.");
+            return;
+        }
+
+        boolean confirmado = vista.confirm("¿Seguro que deseas borrar el pedido " + id + "?\nEsta accion no se puede deshacer.");
+        if (!confirmado) return;
+
+        Order aBorrar = null;
+        for (int i = 0; i < pedidos.size(); i++) {
+            Order p = pedidos.get(i);
+            if (p != null && p.getId() != null && p.getId().equalsIgnoreCase(id)) {
+                aBorrar = p;
+                break;
+            }
+        }
+
+        if (aBorrar != null) {
+            pedidos.remove(aBorrar);
+        }
+
+        actualizarListaIds();
+        guardarCambios();
+
+        vista.displayOrder(null);
+        vista.setEditDeleteEnabled(false);
+        vista.showInfo("Pedido borrado y cambios guardados.");
+    }
+
+    private void editarPedido() {
+        String id = vista.getSelectedOrderId();
+
+        if (id == null) {
+            vista.showInfo("Selecciona un pedido para editar.");
+            return;
+        }
+
+        Order encontrado = null;
+        for (int i = 0; i < pedidos.size(); i++) {
+            Order p = pedidos.get(i);
+            if (p.getId() != null && p.getId().equalsIgnoreCase(id)) {
+                encontrado = p;
+                break;
+            }
+        }
+
+        if (encontrado == null) {
+            vista.showError("No se ha encontrado el pedido seleccionado.");
+            return;
+        }
+
+        boolean actualizado = vista.showEditOrderDialog(encontrado);
+        if (!actualizado) return;
+
+        guardarCambios();
+        vista.displayOrder(encontrado, intercambio.obtenerEurUsd());
+        vista.showInfo("Pedido editado y cambios guardados.");
     }
 }

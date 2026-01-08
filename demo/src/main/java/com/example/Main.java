@@ -1,41 +1,38 @@
 package com.example;
 
-import com.example.controller.OrderController;
+import com.example.Controller.OrderController;
+import com.example.View.OrderView;
+import com.example.model.Intercambio;
 import com.example.model.Order;
-import com.example.view.OrderView;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.example.model.OrdersRepository;
 
-import javax.swing.SwingUtilities;
-import java.io.InputStream;
+import java.io.IOException;
 import java.util.List;
 
 public class Main {
 
-    private static final Logger log = LoggerFactory.getLogger(Main.class);
+    public static void main(String[] args) {
 
-    public static void main(String[] args) throws Exception {
-        log.info("Starting Order Management System...");
+        System.out.println("Iniciando sistema de gestion de pedidos...\n");
 
-        // 1) Leer orders.json
-        ObjectMapper mapper = new ObjectMapper().findAndRegisterModules();
-        List<Order> orders;
-        try (InputStream is = Main.class.getResourceAsStream("/orders.json")) {
-            if (is == null) throw new IllegalStateException("No se encontró /orders.json en src/main/resources");
-            orders = mapper.readValue(is, new TypeReference<List<Order>>() {});
+        OrdersRepository repositorio = new OrdersRepository();
+        List<Order> pedidos;
+
+        try {
+            pedidos = repositorio.cargarPedidos();
+        } catch (IOException e) {
+            System.out.println("Error al cargar los pedidos.");
+            return;
         }
-        log.info("Pedidos leídos: {}", orders.size());
-        for (Order o : orders) log.debug("Loaded order: {}", o.getId());
 
-        // 2) Crear la UI en el hilo de Swing
-        final List<Order> finalOrders = orders;
-        SwingUtilities.invokeLater(() -> {
-            OrderView view = new OrderView();
-            new OrderController(view, finalOrders);
-            // por si el constructor no la hace visible:
-            view.setVisible(true);
-        });
+        System.out.println("Pedidos cargados: " + pedidos.size());
+        System.out.println("Fichero JSON usado: " + repositorio.obtenerRutaAbsoluta());
+
+        OrderView vista = new OrderView();
+        Intercambio intercambio = new Intercambio();
+
+        new OrderController(vista, pedidos, repositorio, intercambio);
+
+        System.out.println("Aplicacion iniciada correctamente.");
     }
 }

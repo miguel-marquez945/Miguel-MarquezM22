@@ -1,40 +1,71 @@
 package com.example.model;
 
-import com.fasterxml.jackson.annotation.JsonAlias;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
-
-@JsonIgnoreProperties(ignoreUnknown = true)
 public class Article {
 
-    @JsonProperty("name")     @JsonAlias({"nombre"})
     private String name;
-
-    @JsonProperty("quantity") @JsonAlias({"cantidad"})
     private int quantity;
+    private double unitPrice;
+    private double dicount;
 
-    @JsonProperty("price")    @JsonAlias({"precio"})
-    private double price;
+    public Article() {
+    }
 
-    @JsonProperty("discount") @JsonAlias({"descuento"})
-    private double discount;
+    public Article(String name, int quantity, double unitPrice, double dicount) {
+        this.name = name;
+        this.quantity = quantity;
+        this.unitPrice = unitPrice;
+        this.dicount = dicount;
+    }
 
-    public Article() {}
 
-    // Getters/Setters en inglés (no duplicar con español)
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
 
-    public int getQuantity() { return quantity; }
-    public void setQuantity(int quantity) { this.quantity = quantity; }
+    public String getName() {
+        return name;
+    }
 
-    public double getPrice() { return price; }
-    public void setPrice(double price) { this.price = price; }
+    public void setName(String name) {
+        this.name = name;
+    }
 
-    public double getDiscount() { return discount; }
-    public void setDiscount(double discount) { this.discount = discount; }
+    public int getQuantity() {
+        return quantity
+        ;
+    }
 
-    // Cálculos usados por el controlador/vista
-    public double grossAmount() { return quantity * price; }
-    public double discountedAmount() { return grossAmount() * (1.0 - discount / 100.0); }
+    public void setQuantity(int quantity
+    ) {
+        this.quantity
+         = quantity
+        ;
+    }
+
+    public double getUnitPrice() {
+        return unitPrice
+        ;
+    }
+
+    public void setUnitPrice(double unitPrice
+    ) {
+        this.unitPrice
+         = unitPrice
+        ;
+    }
+
+    public double getDiscount() {
+        return dicount;
+    }
+
+    public void setDiscount(double dicount) {
+        this.dicount = dicount;
+    }
+
+    public double getGrossAmount() {
+        return Calculator.multiply(quantity
+        , unitPrice
+        );
+    }
+
+    public double getDiscountedAmount() {
+        return Calculator.applyDiscount(getGrossAmount(), dicount);
+    }
 }
