@@ -6,7 +6,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
-public class Intercambio {
+public class Api {
 
     private static final String URL = "https://api.frankfurter.dev/v1/latest?base=EUR&symbols=USD";
 

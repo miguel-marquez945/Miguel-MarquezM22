@@ -4,6 +4,7 @@ import com.example.model.Article;
 import com.example.model.Order;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.util.ArrayList;
@@ -22,60 +23,178 @@ public class OrderView extends JFrame {
 
     private JTextArea areaDetalle;
 
+    // extras visuales (no afectan al controller)
+    private JLabel lblPedidoActual;
+    private JLabel lblEstado;
+
     public OrderView() {
         setTitle("Order Management");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLayout(new BorderLayout(10, 10));
+        setMinimumSize(new Dimension(950, 560));
+        setLayout(new BorderLayout());
 
         modeloIds = new DefaultListModel<String>();
         listaIds = new JList<String>(modeloIds);
         listaIds.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        listaIds.setFixedCellHeight(28);
+        listaIds.setBorder(new EmptyBorder(6, 6, 6, 6));
 
-        campoBuscar = new JTextField(10);
+        campoBuscar = new JTextField(14);
         botonBuscar = new JButton("Buscar");
+
         botonCrear = new JButton("Crear pedido");
-        botonEditar = new JButton("Editar pedido");
-        botonBorrar = new JButton("Borrar pedido");
+        botonEditar = new JButton("Editar");
+        botonBorrar = new JButton("Borrar");
 
-        areaDetalle = new JTextArea(16, 55);
+        areaDetalle = new JTextArea();
         areaDetalle.setEditable(false);
+        areaDetalle.setLineWrap(true);
+        areaDetalle.setWrapStyleWord(true);
+        areaDetalle.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
 
-        add(crearPanelIzquierdo(), BorderLayout.WEST);
-        add(crearPanelCentral(), BorderLayout.CENTER);
+        add(crearHeader(), BorderLayout.NORTH);
+        add(crearCuerpo(), BorderLayout.CENTER);
+        add(crearBarraEstado(), BorderLayout.SOUTH);
 
+        setEditDeleteEnabled(false);
         pack();
         setLocationRelativeTo(null);
         setVisible(true);
     }
 
-    private JPanel crearPanelIzquierdo() {
-        JPanel panel = new JPanel(new BorderLayout(5, 5));
-        panel.setBorder(BorderFactory.createTitledBorder("IDs de pedidos"));
-        panel.add(new JScrollPane(listaIds), BorderLayout.CENTER);
-        panel.setPreferredSize(new Dimension(180, 300));
-        return panel;
+    // ===================== UI (cambia solo como se ve) =====================
+
+    private JPanel crearHeader() {
+        JPanel header = new JPanel(new BorderLayout(10, 10));
+        header.setBorder(new EmptyBorder(12, 14, 12, 14));
+        header.setBackground(new Color(245, 246, 248));
+
+        JPanel titulos = new JPanel();
+        titulos.setLayout(new BoxLayout(titulos, BoxLayout.Y_AXIS));
+        titulos.setOpaque(false);
+
+        JLabel titulo = new JLabel("Orders Dashboard");
+        titulo.setFont(titulo.getFont().deriveFont(Font.BOLD, 18f));
+
+        JLabel subtitulo = new JLabel("Buscar, crear y gestionar pedidos");
+        subtitulo.setFont(subtitulo.getFont().deriveFont(Font.PLAIN, 12f));
+        subtitulo.setForeground(new Color(90, 90, 90));
+
+        titulos.add(titulo);
+        titulos.add(Box.createVerticalStrut(2));
+        titulos.add(subtitulo);
+
+        JPanel buscador = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
+        buscador.setOpaque(false);
+        buscador.add(new JLabel("ID:"));
+        buscador.add(campoBuscar);
+        buscador.add(botonBuscar);
+
+        header.add(titulos, BorderLayout.WEST);
+        header.add(buscador, BorderLayout.EAST);
+
+        return header;
     }
 
-    private JPanel crearPanelCentral() {
-        JPanel panel = new JPanel(new BorderLayout(8, 8));
+    private JComponent crearCuerpo() {
+        JPanel izquierda = crearSidebar();
+        JPanel derecha = crearDetalle();
 
-        JPanel arriba = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        arriba.add(new JLabel("Buscar por ID:"));
-        arriba.add(campoBuscar);
-        arriba.add(botonBuscar);
+        JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, izquierda, derecha);
+        split.setDividerLocation(280);
+        split.setResizeWeight(0.0);
+        split.setBorder(null);
 
-        arriba.add(Box.createHorizontalStrut(15));
-        arriba.add(botonCrear);
-        arriba.add(botonEditar);
-        arriba.add(botonBorrar);
+        return split;
+    }
+
+    private JPanel crearSidebar() {
+        JPanel panel = new JPanel(new BorderLayout(10, 10));
+        panel.setBorder(new EmptyBorder(14, 14, 14, 10));
+
+        JLabel lbl = new JLabel("Pedidos");
+        lbl.setFont(lbl.getFont().deriveFont(Font.BOLD, 13f));
+
+        JScrollPane scroll = new JScrollPane(listaIds);
+        scroll.setBorder(BorderFactory.createLineBorder(new Color(220, 220, 220)));
+
+        JPanel arriba = new JPanel(new BorderLayout());
+        arriba.add(lbl, BorderLayout.WEST);
+
+        // Botones en vertical (distinto a tu vista original)
+        JPanel acciones = new JPanel();
+        acciones.setLayout(new BoxLayout(acciones, BoxLayout.Y_AXIS));
+        acciones.setBorder(new EmptyBorder(8, 0, 0, 0));
+
+        botonCrear.setAlignmentX(Component.CENTER_ALIGNMENT);
+        botonEditar.setAlignmentX(Component.CENTER_ALIGNMENT);
+        botonBorrar.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        acciones.add(botonCrear);
+        acciones.add(Box.createVerticalStrut(8));
+        acciones.add(botonEditar);
+        acciones.add(Box.createVerticalStrut(8));
+        acciones.add(botonBorrar);
 
         panel.add(arriba, BorderLayout.NORTH);
-        panel.add(new JScrollPane(areaDetalle), BorderLayout.CENTER);
+        panel.add(scroll, BorderLayout.CENTER);
+        panel.add(acciones, BorderLayout.SOUTH);
 
         return panel;
     }
 
-    // ------------------ Metodos usados por el Controller ------------------
+    private JPanel crearDetalle() {
+        JPanel panel = new JPanel(new BorderLayout(10, 10));
+        panel.setBorder(new EmptyBorder(14, 10, 14, 14));
+
+        // Cabecera de “tarjeta”
+        JPanel cabecera = new JPanel(new BorderLayout(10, 10));
+        cabecera.setBorder(new EmptyBorder(10, 12, 10, 12));
+        cabecera.setBackground(new Color(250, 250, 250));
+        cabecera.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(220, 220, 220)),
+                new EmptyBorder(10, 12, 10, 12)
+        ));
+
+        JLabel lblTitulo = new JLabel("Detalle del pedido");
+        lblTitulo.setFont(lblTitulo.getFont().deriveFont(Font.BOLD, 13f));
+
+        lblPedidoActual = new JLabel("Ningún pedido seleccionado");
+        lblPedidoActual.setForeground(new Color(90, 90, 90));
+
+        cabecera.add(lblTitulo, BorderLayout.WEST);
+        cabecera.add(lblPedidoActual, BorderLayout.EAST);
+
+        JScrollPane scrollDetalle = new JScrollPane(areaDetalle);
+        scrollDetalle.setBorder(BorderFactory.createLineBorder(new Color(220, 220, 220)));
+
+        panel.add(cabecera, BorderLayout.NORTH);
+        panel.add(scrollDetalle, BorderLayout.CENTER);
+
+        return panel;
+    }
+
+    private JPanel crearBarraEstado() {
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setBorder(new EmptyBorder(6, 12, 6, 12));
+        panel.setBackground(new Color(245, 246, 248));
+
+        lblEstado = new JLabel("Listo.");
+        lblEstado.setForeground(new Color(80, 80, 80));
+
+        panel.add(lblEstado, BorderLayout.WEST);
+        return panel;
+    }
+
+    private void setEstado(String txt) {
+        if (lblEstado != null) lblEstado.setText(txt == null ? "" : txt);
+    }
+
+    private void setPedidoActual(String txt) {
+        if (lblPedidoActual != null) lblPedidoActual.setText(txt == null ? "" : txt);
+    }
+
+    // ===================== Metodos usados por el Controller =====================
 
     public JButton getSearchButton() {
         return botonBuscar;
@@ -103,6 +222,7 @@ public class OrderView extends JFrame {
         for (int i = 0; i < ids.size(); i++) {
             modeloIds.addElement(ids.get(i));
         }
+        setEstado("Cargados " + ids.size() + " pedidos.");
     }
 
     public void addOrderSelectionListener(ListSelectionListener listener) {
@@ -125,29 +245,38 @@ public class OrderView extends JFrame {
 
     public void showError(String mensaje) {
         JOptionPane.showMessageDialog(this, mensaje, "Error", JOptionPane.ERROR_MESSAGE);
+        setEstado("Error: " + mensaje);
     }
 
     public void showInfo(String mensaje) {
         JOptionPane.showMessageDialog(this, mensaje, "Informacion", JOptionPane.INFORMATION_MESSAGE);
+        setEstado(mensaje);
     }
 
     public boolean confirm(String mensaje) {
-        return JOptionPane.showConfirmDialog(this, mensaje, "Confirmar", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION;
+        return JOptionPane.showConfirmDialog(this, mensaje, "Confirmar",
+                JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION;
     }
 
-    // ------------------ Mostrar pedido ------------------
+    // ===================== Mostrar pedido =====================
 
     public void displayOrder(Order order) {
         if (order == null) {
             areaDetalle.setText("Pedido no encontrado...");
+            setPedidoActual("Pedido: -");
+            setEstado("Pedido no encontrado.");
             return;
         }
         areaDetalle.setText(order.toString());
+        setPedidoActual("Pedido: " + order.getId());
+        setEstado("Mostrando pedido " + order.getId());
     }
 
     public void displayOrder(Order order, double tipoCambio) {
         if (order == null) {
             areaDetalle.setText("Pedido no encontrado...");
+            setPedidoActual("Pedido: -");
+            setEstado("Pedido no encontrado.");
             return;
         }
 
@@ -180,12 +309,15 @@ public class OrderView extends JFrame {
         sb.append("1 EUR = ").append(String.format("%.4f USD", tipoCambio)).append("\n");
 
         areaDetalle.setText(sb.toString());
+        setPedidoActual("Pedido: " + order.getId());
+        setEstado("Mostrando pedido " + order.getId() + " (EUR/USD)");
     }
 
-    // ------------------ Crear pedido (formulario simple) ------------------
+    // ===================== Crear pedido (formulario simple) =====================
 
     public Order showCreateOrderDialog(List<String> idsExistentes) {
-        String id = JOptionPane.showInputDialog(this, "Introduce el ID del pedido (unico):", "Crear pedido", JOptionPane.QUESTION_MESSAGE);
+        String id = JOptionPane.showInputDialog(this, "Introduce el ID del pedido (unico):",
+                "Crear pedido", JOptionPane.QUESTION_MESSAGE);
         if (id == null) return null;
         id = id.trim();
 
@@ -203,7 +335,8 @@ public class OrderView extends JFrame {
             }
         }
 
-        String textoNum = JOptionPane.showInputDialog(this, "¿Cuantos articulos quieres añadir?", "Crear pedido", JOptionPane.QUESTION_MESSAGE);
+        String textoNum = JOptionPane.showInputDialog(this, "¿Cuantos articulos quieres añadir?",
+                "Crear pedido", JOptionPane.QUESTION_MESSAGE);
         if (textoNum == null) return null;
 
         int num;
@@ -224,7 +357,7 @@ public class OrderView extends JFrame {
         for (int i = 0; i < num; i++) {
             Article articulo = pedirArticulo(i + 1);
             if (articulo == null) {
-                return null; // cancelado o invalido
+                return null;
             }
             articulos.add(articulo);
         }
@@ -233,7 +366,8 @@ public class OrderView extends JFrame {
     }
 
     private Article pedirArticulo(int indice) {
-        String nombre = JOptionPane.showInputDialog(this, "Articulo " + indice + " - Nombre:", "Crear pedido", JOptionPane.QUESTION_MESSAGE);
+        String nombre = JOptionPane.showInputDialog(this, "Articulo " + indice + " - Nombre:",
+                "Crear pedido", JOptionPane.QUESTION_MESSAGE);
         if (nombre == null) return null;
         nombre = nombre.trim();
 
@@ -242,7 +376,8 @@ public class OrderView extends JFrame {
             return null;
         }
 
-        String textoCantidad = JOptionPane.showInputDialog(this, "Articulo " + indice + " - Cantidad:", "Crear pedido", JOptionPane.QUESTION_MESSAGE);
+        String textoCantidad = JOptionPane.showInputDialog(this, "Articulo " + indice + " - Cantidad:",
+                "Crear pedido", JOptionPane.QUESTION_MESSAGE);
         if (textoCantidad == null) return null;
 
         int cantidad;
@@ -258,7 +393,8 @@ public class OrderView extends JFrame {
             return null;
         }
 
-        String textoPrecio = JOptionPane.showInputDialog(this, "Articulo " + indice + " - Precio unitario:", "Crear pedido", JOptionPane.QUESTION_MESSAGE);
+        String textoPrecio = JOptionPane.showInputDialog(this, "Articulo " + indice + " - Precio unitario:",
+                "Crear pedido", JOptionPane.QUESTION_MESSAGE);
         if (textoPrecio == null) return null;
 
         double precio;
@@ -274,7 +410,8 @@ public class OrderView extends JFrame {
             return null;
         }
 
-        String textoDescuento = JOptionPane.showInputDialog(this, "Articulo " + indice + " - Descuento (%):", "Crear pedido", JOptionPane.QUESTION_MESSAGE);
+        String textoDescuento = JOptionPane.showInputDialog(this, "Articulo " + indice + " - Descuento (%):",
+                "Crear pedido", JOptionPane.QUESTION_MESSAGE);
         if (textoDescuento == null) return null;
 
         double descuento;
@@ -293,7 +430,7 @@ public class OrderView extends JFrame {
         return new Article(nombre, cantidad, precio, descuento);
     }
 
-    // ------------------ Editar pedido (solo cantidad y descuento) ------------------
+    // ===================== Editar pedido (solo cantidad y descuento) =====================
 
     public boolean showEditOrderDialog(Order pedido) {
         if (pedido == null || pedido.getArticles() == null || pedido.getArticles().size() == 0) {
@@ -366,7 +503,6 @@ public class OrderView extends JFrame {
             }
         }
 
-        // Aplicar cambios (aqui ya se guarda bien porque ya hemos leido los textos)
         for (int i = 0; i < articulos.size(); i++) {
             Article a = articulos.get(i);
             int cantidad = Integer.parseInt(camposCantidad[i].getText().trim());

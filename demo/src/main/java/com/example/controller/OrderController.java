@@ -1,7 +1,7 @@
 package com.example.Controller;
 
 import com.example.View.OrderView;
-import com.example.model.Intercambio;
+import com.example.model.Api;
 import com.example.model.Order;
 import com.example.model.OrdersRepository;
 
@@ -18,9 +18,9 @@ public class OrderController {
     private OrderView vista;
     private List<Order> pedidos;
     private OrdersRepository repositorio;
-    private Intercambio intercambio;
+    private Api intercambio;
 
-    public OrderController(OrderView view, List<Order> orders, OrdersRepository repository, Intercambio intercambio) {
+    public OrderController(OrderView view, List<Order> orders, OrdersRepository repository, Api intercambio) {
         this.vista = view;
         this.pedidos = (orders != null) ? orders : new ArrayList<Order>();
         this.repositorio = repository;

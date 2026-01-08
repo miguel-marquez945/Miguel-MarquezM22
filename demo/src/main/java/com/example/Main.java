@@ -2,7 +2,7 @@ package com.example;
 
 import com.example.Controller.OrderController;
 import com.example.View.OrderView;
-import com.example.model.Intercambio;
+import com.example.model.Api;
 import com.example.model.Order;
 import com.example.model.OrdersRepository;
 
@@ -29,7 +29,7 @@ public class Main {
         System.out.println("Fichero JSON usado: " + repositorio.obtenerRutaAbsoluta());
 
         OrderView vista = new OrderView();
-        Intercambio intercambio = new Intercambio();
+        Api intercambio = new Api();
 
         new OrderController(vista, pedidos, repositorio, intercambio);
 
