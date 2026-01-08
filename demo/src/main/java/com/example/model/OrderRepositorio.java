@@ -13,7 +13,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
-public class OrdersRepository {
+public class OrderRepositorio {
 
     private static final String NOMBRE_RECURSO = "orders.json";
 
@@ -24,7 +24,7 @@ public class OrdersRepository {
     private Path rutaFichero;
     private ObjectMapper mapper;
 
-    public OrdersRepository() {
+    public OrderRepositorio() {
         this.rutaFichero = RUTA_FIJA;
         this.mapper = new ObjectMapper();
 
@@ -43,7 +43,7 @@ public class OrdersRepository {
         }
 
         // Copiar el JSON inicial desde resources
-        InputStream entrada = OrdersRepository.class
+        InputStream entrada = OrderRepositorio.class
                 .getClassLoader()
                 .getResourceAsStream(NOMBRE_RECURSO);
 

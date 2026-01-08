@@ -16,45 +16,59 @@ public class OrderView extends JFrame {
     private JList<String> listaIds;
 
     private JTextField campoBuscar;
-    private JButton botonBuscar;
-    private JButton botonCrear;
-    private JButton botonEditar;
-    private JButton botonBorrar;
+    private JButton botonBuscar, botonCrear, botonEditar, botonBorrar;
 
     private JTextArea areaDetalle;
 
-    // extras visuales (no afectan al controller)
-    private JLabel lblPedidoActual;
-    private JLabel lblEstado;
+    private JLabel lblPedidoActual, lblEstado;
+
+    
+    private final Color BG = new Color(245, 246, 248);
+    private final Color CARD = new Color(255, 255, 255);
+    private final Color LINE = new Color(220, 220, 220);
+    private final Color TEXT_SOFT = new Color(90, 90, 90);
 
     public OrderView() {
         setTitle("Order Management");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setMinimumSize(new Dimension(950, 560));
-        setLayout(new BorderLayout());
+        setMinimumSize(new Dimension(980, 580));
+        getContentPane().setBackground(BG);
+        setLayout(new BorderLayout(12, 12));
 
+        // Model + lista
         modeloIds = new DefaultListModel<String>();
         listaIds = new JList<String>(modeloIds);
         listaIds.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        listaIds.setFixedCellHeight(28);
+        listaIds.setFixedCellHeight(34);
         listaIds.setBorder(new EmptyBorder(6, 6, 6, 6));
+        listaIds.setCellRenderer(crearRendererLista());
 
+        // Controles
         campoBuscar = new JTextField(14);
+        campoBuscar.setToolTipText("Escribe un ID (ej: 0001) y pulsa Buscar");
+
         botonBuscar = new JButton("Buscar");
-
-        botonCrear = new JButton("Crear pedido");
+        botonCrear = new JButton("Nuevo pedido");
         botonEditar = new JButton("Editar");
-        botonBorrar = new JButton("Borrar");
+        botonBorrar = new JButton("Eliminar");
 
+        estilizarBoton(botonBuscar, false);
+        estilizarBoton(botonCrear, true);
+        estilizarBoton(botonEditar, false);
+        estilizarBoton(botonBorrar, false);
+
+        // Detalle
         areaDetalle = new JTextArea();
         areaDetalle.setEditable(false);
         areaDetalle.setLineWrap(true);
         areaDetalle.setWrapStyleWord(true);
         areaDetalle.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
+        areaDetalle.setBorder(new EmptyBorder(10, 10, 10, 10));
 
+        // UI
         add(crearHeader(), BorderLayout.NORTH);
-        add(crearCuerpo(), BorderLayout.CENTER);
-        add(crearBarraEstado(), BorderLayout.SOUTH);
+        add(crearSplit(), BorderLayout.CENTER);
+        add(crearStatusBar(), BorderLayout.SOUTH);
 
         setEditDeleteEnabled(false);
         pack();
@@ -62,128 +76,162 @@ public class OrderView extends JFrame {
         setVisible(true);
     }
 
-    // ===================== UI (cambia solo como se ve) =====================
+    private DefaultListCellRenderer crearRendererLista() {
+        return new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(JList<?> list, Object value, int index,
+                                                          boolean isSelected, boolean cellHasFocus) {
+                JLabel c = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                c.setBorder(new EmptyBorder(6, 10, 6, 10));
+                c.setFont(c.getFont().deriveFont(Font.BOLD, 12f));
+                c.setOpaque(true);
+
+                if (isSelected) {
+                    c.setBackground(new Color(30, 40, 70));
+                    c.setForeground(Color.WHITE);
+                } else {
+                    c.setBackground(Color.WHITE);
+                    c.setForeground(new Color(40, 40, 40));
+                }
+                return c;
+            }
+        };
+    }
+
+    private void estilizarBoton(JButton b, boolean principal) {
+        b.setFocusPainted(false);
+        b.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        b.setBorder(new EmptyBorder(8, 12, 8, 12));
+        b.setFont(b.getFont().deriveFont(Font.BOLD, 12f));
+
+        if (principal) {
+            b.setBackground(new Color(30, 40, 70));
+            b.setForeground(Color.WHITE);
+        } else {
+            b.setBackground(new Color(235, 236, 240));
+            b.setForeground(new Color(35, 35, 35));
+        }
+    }
 
     private JPanel crearHeader() {
-        JPanel header = new JPanel(new BorderLayout(10, 10));
-        header.setBorder(new EmptyBorder(12, 14, 12, 14));
-        header.setBackground(new Color(245, 246, 248));
+        JPanel header = new JPanel(new BorderLayout(12, 12));
+        header.setBorder(new EmptyBorder(12, 14, 0, 14));
+        header.setOpaque(false);
 
         JPanel titulos = new JPanel();
-        titulos.setLayout(new BoxLayout(titulos, BoxLayout.Y_AXIS));
         titulos.setOpaque(false);
+        titulos.setLayout(new BoxLayout(titulos, BoxLayout.Y_AXIS));
 
-        JLabel titulo = new JLabel("Orders Dashboard");
-        titulo.setFont(titulo.getFont().deriveFont(Font.BOLD, 18f));
+        JLabel t = new JLabel("Orders");
+        t.setFont(t.getFont().deriveFont(Font.BOLD, 20f));
 
-        JLabel subtitulo = new JLabel("Buscar, crear y gestionar pedidos");
-        subtitulo.setFont(subtitulo.getFont().deriveFont(Font.PLAIN, 12f));
-        subtitulo.setForeground(new Color(90, 90, 90));
+        JLabel s = new JLabel("Gestiona pedidos rápido (buscar / crear / editar / eliminar)");
+        s.setFont(s.getFont().deriveFont(Font.PLAIN, 12f));
+        s.setForeground(TEXT_SOFT);
 
-        titulos.add(titulo);
-        titulos.add(Box.createVerticalStrut(2));
-        titulos.add(subtitulo);
+        titulos.add(t);
+        titulos.add(Box.createVerticalStrut(3));
+        titulos.add(s);
 
-        JPanel buscador = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
-        buscador.setOpaque(false);
-        buscador.add(new JLabel("ID:"));
-        buscador.add(campoBuscar);
-        buscador.add(botonBuscar);
+        JPanel buscar = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
+        buscar.setOpaque(false);
+        buscar.add(new JLabel("ID:"));
+        buscar.add(campoBuscar);
+        buscar.add(botonBuscar);
 
         header.add(titulos, BorderLayout.WEST);
-        header.add(buscador, BorderLayout.EAST);
+        header.add(buscar, BorderLayout.EAST);
 
         return header;
     }
 
-    private JComponent crearCuerpo() {
-        JPanel izquierda = crearSidebar();
-        JPanel derecha = crearDetalle();
+    private JComponent crearSplit() {
+        JPanel izquierda = tarjeta(crearPanelIzquierdo(), "Pedidos");
+        JPanel derecha = tarjeta(crearPanelDerecho(), null);
 
         JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, izquierda, derecha);
-        split.setDividerLocation(280);
+        split.setDividerLocation(300);
         split.setResizeWeight(0.0);
-        split.setBorder(null);
-
+        split.setBorder(new EmptyBorder(0, 14, 8, 14));
+        split.setDividerSize(8);
         return split;
     }
 
-    private JPanel crearSidebar() {
-        JPanel panel = new JPanel(new BorderLayout(10, 10));
-        panel.setBorder(new EmptyBorder(14, 14, 14, 10));
-
-        JLabel lbl = new JLabel("Pedidos");
-        lbl.setFont(lbl.getFont().deriveFont(Font.BOLD, 13f));
+    private JPanel crearPanelIzquierdo() {
+        JPanel p = new JPanel(new BorderLayout(10, 10));
+        p.setOpaque(false);
 
         JScrollPane scroll = new JScrollPane(listaIds);
-        scroll.setBorder(BorderFactory.createLineBorder(new Color(220, 220, 220)));
+        scroll.setBorder(BorderFactory.createLineBorder(LINE));
+        scroll.getViewport().setBackground(Color.WHITE);
 
-        JPanel arriba = new JPanel(new BorderLayout());
-        arriba.add(lbl, BorderLayout.WEST);
-
-        // Botones en vertical (distinto a tu vista original)
         JPanel acciones = new JPanel();
-        acciones.setLayout(new BoxLayout(acciones, BoxLayout.Y_AXIS));
-        acciones.setBorder(new EmptyBorder(8, 0, 0, 0));
-
-        botonCrear.setAlignmentX(Component.CENTER_ALIGNMENT);
-        botonEditar.setAlignmentX(Component.CENTER_ALIGNMENT);
-        botonBorrar.setAlignmentX(Component.CENTER_ALIGNMENT);
-
+        acciones.setOpaque(false);
+        acciones.setLayout(new GridLayout(3, 1, 8, 8));
         acciones.add(botonCrear);
-        acciones.add(Box.createVerticalStrut(8));
         acciones.add(botonEditar);
-        acciones.add(Box.createVerticalStrut(8));
         acciones.add(botonBorrar);
 
-        panel.add(arriba, BorderLayout.NORTH);
-        panel.add(scroll, BorderLayout.CENTER);
-        panel.add(acciones, BorderLayout.SOUTH);
+        p.add(scroll, BorderLayout.CENTER);
+        p.add(acciones, BorderLayout.SOUTH);
 
-        return panel;
+        return p;
     }
 
-    private JPanel crearDetalle() {
-        JPanel panel = new JPanel(new BorderLayout(10, 10));
-        panel.setBorder(new EmptyBorder(14, 10, 14, 14));
+    private JPanel crearPanelDerecho() {
+        JPanel p = new JPanel(new BorderLayout(10, 10));
+        p.setOpaque(false);
 
-        // Cabecera de “tarjeta”
-        JPanel cabecera = new JPanel(new BorderLayout(10, 10));
-        cabecera.setBorder(new EmptyBorder(10, 12, 10, 12));
-        cabecera.setBackground(new Color(250, 250, 250));
-        cabecera.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(new Color(220, 220, 220)),
-                new EmptyBorder(10, 12, 10, 12)
-        ));
+        JPanel top = new JPanel(new BorderLayout());
+        top.setOpaque(false);
 
-        JLabel lblTitulo = new JLabel("Detalle del pedido");
-        lblTitulo.setFont(lblTitulo.getFont().deriveFont(Font.BOLD, 13f));
+        JLabel titulo = new JLabel("Detalle del pedido");
+        titulo.setFont(titulo.getFont().deriveFont(Font.BOLD, 13f));
 
         lblPedidoActual = new JLabel("Ningún pedido seleccionado");
-        lblPedidoActual.setForeground(new Color(90, 90, 90));
+        lblPedidoActual.setForeground(TEXT_SOFT);
 
-        cabecera.add(lblTitulo, BorderLayout.WEST);
-        cabecera.add(lblPedidoActual, BorderLayout.EAST);
+        top.add(titulo, BorderLayout.WEST);
+        top.add(lblPedidoActual, BorderLayout.EAST);
 
         JScrollPane scrollDetalle = new JScrollPane(areaDetalle);
-        scrollDetalle.setBorder(BorderFactory.createLineBorder(new Color(220, 220, 220)));
+        scrollDetalle.setBorder(BorderFactory.createLineBorder(LINE));
+        scrollDetalle.getViewport().setBackground(Color.WHITE);
 
-        panel.add(cabecera, BorderLayout.NORTH);
-        panel.add(scrollDetalle, BorderLayout.CENTER);
+        p.add(top, BorderLayout.NORTH);
+        p.add(scrollDetalle, BorderLayout.CENTER);
 
-        return panel;
+        return p;
     }
 
-    private JPanel crearBarraEstado() {
-        JPanel panel = new JPanel(new BorderLayout());
-        panel.setBorder(new EmptyBorder(6, 12, 6, 12));
-        panel.setBackground(new Color(245, 246, 248));
+    private JPanel crearStatusBar() {
+        JPanel bar = new JPanel(new BorderLayout());
+        bar.setBorder(new EmptyBorder(6, 16, 10, 16));
+        bar.setOpaque(false);
 
         lblEstado = new JLabel("Listo.");
-        lblEstado.setForeground(new Color(80, 80, 80));
+        lblEstado.setForeground(TEXT_SOFT);
 
-        panel.add(lblEstado, BorderLayout.WEST);
-        return panel;
+        bar.add(lblEstado, BorderLayout.WEST);
+        return bar;
+    }
+
+    private JPanel tarjeta(JComponent contenido, String titulo) {
+        JPanel card = new JPanel(new BorderLayout(10, 10));
+        card.setBackground(CARD);
+        card.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(LINE),
+                new EmptyBorder(12, 12, 12, 12)
+        ));
+
+        if (titulo != null) {
+            JLabel t = new JLabel(titulo);
+            t.setFont(t.getFont().deriveFont(Font.BOLD, 13f));
+            card.add(t, BorderLayout.NORTH);
+        }
+
+        card.add(contenido, BorderLayout.CENTER);
+        return card;
     }
 
     private void setEstado(String txt) {
@@ -194,34 +242,19 @@ public class OrderView extends JFrame {
         if (lblPedidoActual != null) lblPedidoActual.setText(txt == null ? "" : txt);
     }
 
-    // ===================== Metodos usados por el Controller =====================
+    
 
-    public JButton getSearchButton() {
-        return botonBuscar;
-    }
+    public JButton getSearchButton() { return botonBuscar; }
+    public JButton getCreateButton() { return botonCrear; }
+    public JButton getEditButton() { return botonEditar; }
+    public JButton getDeleteButton() { return botonBorrar; }
 
-    public JButton getCreateButton() {
-        return botonCrear;
-    }
-
-    public JButton getEditButton() {
-        return botonEditar;
-    }
-
-    public JButton getDeleteButton() {
-        return botonBorrar;
-    }
-
-    public String getSearchId() {
-        return campoBuscar.getText().trim();
-    }
+    public String getSearchId() { return campoBuscar.getText().trim(); }
 
     public void setOrderIds(List<String> ids) {
         modeloIds.clear();
         if (ids == null) return;
-        for (int i = 0; i < ids.size(); i++) {
-            modeloIds.addElement(ids.get(i));
-        }
+        for (int i = 0; i < ids.size(); i++) modeloIds.addElement(ids.get(i));
         setEstado("Cargados " + ids.size() + " pedidos.");
     }
 
@@ -229,9 +262,7 @@ public class OrderView extends JFrame {
         listaIds.addListSelectionListener(listener);
     }
 
-    public String getSelectedOrderId() {
-        return listaIds.getSelectedValue();
-    }
+    public String getSelectedOrderId() { return listaIds.getSelectedValue(); }
 
     public void selectOrderId(String id) {
         if (id == null) return;
@@ -258,7 +289,7 @@ public class OrderView extends JFrame {
                 JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION;
     }
 
-    // ===================== Mostrar pedido =====================
+
 
     public void displayOrder(Order order) {
         if (order == null) {
@@ -313,7 +344,7 @@ public class OrderView extends JFrame {
         setEstado("Mostrando pedido " + order.getId() + " (EUR/USD)");
     }
 
-    // ===================== Crear pedido (formulario simple) =====================
+    
 
     public Order showCreateOrderDialog(List<String> idsExistentes) {
         String id = JOptionPane.showInputDialog(this, "Introduce el ID del pedido (unico):",
@@ -321,10 +352,7 @@ public class OrderView extends JFrame {
         if (id == null) return null;
         id = id.trim();
 
-        if (id.length() == 0) {
-            showError("El ID no puede estar vacio.");
-            return null;
-        }
+        if (id.length() == 0) { showError("El ID no puede estar vacio."); return null; }
 
         if (idsExistentes != null) {
             for (int i = 0; i < idsExistentes.size(); i++) {
@@ -340,26 +368,16 @@ public class OrderView extends JFrame {
         if (textoNum == null) return null;
 
         int num;
-        try {
-            num = Integer.parseInt(textoNum.trim());
-        } catch (Exception e) {
-            showError("Numero de articulos invalido.");
-            return null;
-        }
+        try { num = Integer.parseInt(textoNum.trim()); }
+        catch (Exception e) { showError("Numero de articulos invalido."); return null; }
 
-        if (num <= 0) {
-            showError("Debes añadir al menos 1 articulo.");
-            return null;
-        }
+        if (num <= 0) { showError("Debes añadir al menos 1 articulo."); return null; }
 
         List<Article> articulos = new ArrayList<Article>();
-
         for (int i = 0; i < num; i++) {
-            Article articulo = pedirArticulo(i + 1);
-            if (articulo == null) {
-                return null;
-            }
-            articulos.add(articulo);
+            Article a = pedirArticulo(i + 1);
+            if (a == null) return null;
+            articulos.add(a);
         }
 
         return new Order(id, articulos);
@@ -370,67 +388,39 @@ public class OrderView extends JFrame {
                 "Crear pedido", JOptionPane.QUESTION_MESSAGE);
         if (nombre == null) return null;
         nombre = nombre.trim();
-
-        if (nombre.length() == 0) {
-            showError("El nombre del articulo no puede estar vacio.");
-            return null;
-        }
+        if (nombre.length() == 0) { showError("El nombre del articulo no puede estar vacio."); return null; }
 
         String textoCantidad = JOptionPane.showInputDialog(this, "Articulo " + indice + " - Cantidad:",
                 "Crear pedido", JOptionPane.QUESTION_MESSAGE);
         if (textoCantidad == null) return null;
 
         int cantidad;
-        try {
-            cantidad = Integer.parseInt(textoCantidad.trim());
-        } catch (Exception e) {
-            showError("Cantidad invalida.");
-            return null;
-        }
-
-        if (cantidad <= 0) {
-            showError("La cantidad debe ser mayor que 0.");
-            return null;
-        }
+        try { cantidad = Integer.parseInt(textoCantidad.trim()); }
+        catch (Exception e) { showError("Cantidad invalida."); return null; }
+        if (cantidad <= 0) { showError("La cantidad debe ser mayor que 0."); return null; }
 
         String textoPrecio = JOptionPane.showInputDialog(this, "Articulo " + indice + " - Precio unitario:",
                 "Crear pedido", JOptionPane.QUESTION_MESSAGE);
         if (textoPrecio == null) return null;
 
         double precio;
-        try {
-            precio = Double.parseDouble(textoPrecio.trim().replace(",", "."));
-        } catch (Exception e) {
-            showError("Precio invalido.");
-            return null;
-        }
-
-        if (precio < 0) {
-            showError("El precio debe ser mayor o igual que 0.");
-            return null;
-        }
+        try { precio = Double.parseDouble(textoPrecio.trim().replace(",", ".")); }
+        catch (Exception e) { showError("Precio invalido."); return null; }
+        if (precio < 0) { showError("El precio debe ser mayor o igual que 0."); return null; }
 
         String textoDescuento = JOptionPane.showInputDialog(this, "Articulo " + indice + " - Descuento (%):",
                 "Crear pedido", JOptionPane.QUESTION_MESSAGE);
         if (textoDescuento == null) return null;
 
         double descuento;
-        try {
-            descuento = Double.parseDouble(textoDescuento.trim().replace(",", "."));
-        } catch (Exception e) {
-            showError("Descuento invalido.");
-            return null;
-        }
-
-        if (descuento < 0 || descuento > 100) {
-            showError("El descuento debe estar entre 0 y 100.");
-            return null;
-        }
+        try { descuento = Double.parseDouble(textoDescuento.trim().replace(",", ".")); }
+        catch (Exception e) { showError("Descuento invalido."); return null; }
+        if (descuento < 0 || descuento > 100) { showError("El descuento debe estar entre 0 y 100."); return null; }
 
         return new Article(nombre, cantidad, precio, descuento);
     }
 
-    // ===================== Editar pedido (solo cantidad y descuento) =====================
+    
 
     public boolean showEditOrderDialog(Order pedido) {
         if (pedido == null || pedido.getArticles() == null || pedido.getArticles().size() == 0) {
@@ -440,9 +430,7 @@ public class OrderView extends JFrame {
 
         List<Article> articulos = pedido.getArticles();
 
-        JPanel panel = new JPanel();
-        panel.setLayout(new GridLayout(articulos.size() + 1, 3, 8, 6));
-
+        JPanel panel = new JPanel(new GridLayout(articulos.size() + 1, 3, 8, 6));
         panel.add(new JLabel("Articulo"));
         panel.add(new JLabel("Cantidad"));
         panel.add(new JLabel("Descuento (%)"));
@@ -452,65 +440,39 @@ public class OrderView extends JFrame {
 
         for (int i = 0; i < articulos.size(); i++) {
             Article a = articulos.get(i);
-
             panel.add(new JLabel(a.getName()));
-
             camposCantidad[i] = new JTextField(String.valueOf(a.getQuantity()));
             camposDescuento[i] = new JTextField(String.valueOf(a.getDiscount()));
-
             panel.add(camposCantidad[i]);
             panel.add(camposDescuento[i]);
         }
 
-        int opcion = JOptionPane.showConfirmDialog(
-                this,
-                panel,
-                "Editar pedido " + pedido.getId() + " (solo cantidad y descuento)",
-                JOptionPane.OK_CANCEL_OPTION,
-                JOptionPane.PLAIN_MESSAGE
-        );
+        int opcion = JOptionPane.showConfirmDialog(this, panel,
+                "Editar pedido " + pedido.getId() + " (cantidad y descuento)",
+                JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 
-        if (opcion != JOptionPane.OK_OPTION) {
-            return false;
-        }
+        if (opcion != JOptionPane.OK_OPTION) return false;
 
         for (int i = 0; i < articulos.size(); i++) {
-            int cantidad;
-            double descuento;
+            int cantidad; double descuento;
 
-            try {
-                cantidad = Integer.parseInt(camposCantidad[i].getText().trim());
-            } catch (Exception e) {
-                showError("Cantidad invalida en el articulo " + (i + 1));
-                return false;
-            }
+            try { cantidad = Integer.parseInt(camposCantidad[i].getText().trim()); }
+            catch (Exception e) { showError("Cantidad invalida en el articulo " + (i + 1)); return false; }
 
-            try {
-                descuento = Double.parseDouble(camposDescuento[i].getText().trim().replace(",", "."));
-            } catch (Exception e) {
-                showError("Descuento invalido en el articulo " + (i + 1));
-                return false;
-            }
+            try { descuento = Double.parseDouble(camposDescuento[i].getText().trim().replace(",", ".")); }
+            catch (Exception e) { showError("Descuento invalido en el articulo " + (i + 1)); return false; }
 
-            if (cantidad <= 0) {
-                showError("La cantidad debe ser mayor que 0 en el articulo " + (i + 1));
-                return false;
-            }
-
-            if (descuento < 0 || descuento > 100) {
-                showError("El descuento debe estar entre 0 y 100 en el articulo " + (i + 1));
-                return false;
-            }
+            if (cantidad <= 0) { showError("Cantidad > 0 en el articulo " + (i + 1)); return false; }
+            if (descuento < 0 || descuento > 100) { showError("Descuento 0-100 en el articulo " + (i + 1)); return false; }
         }
 
         for (int i = 0; i < articulos.size(); i++) {
             Article a = articulos.get(i);
-            int cantidad = Integer.parseInt(camposCantidad[i].getText().trim());
-            double descuento = Double.parseDouble(camposDescuento[i].getText().trim().replace(",", "."));
-            a.setQuantity(cantidad);
-            a.setDiscount(descuento);
+            a.setQuantity(Integer.parseInt(camposCantidad[i].getText().trim()));
+            a.setDiscount(Double.parseDouble(camposDescuento[i].getText().trim().replace(",", ".")));
         }
 
+        setEstado("Pedido " + pedido.getId() + " actualizado.");
         return true;
     }
 }

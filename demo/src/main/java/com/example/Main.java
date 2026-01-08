@@ -4,7 +4,7 @@ import com.example.Controller.OrderController;
 import com.example.View.OrderView;
 import com.example.model.Api;
 import com.example.model.Order;
-import com.example.model.OrdersRepository;
+import com.example.model.OrderRepositorio;
 
 import java.io.IOException;
 import java.util.List;
@@ -15,7 +15,7 @@ public class Main {
 
         System.out.println("Iniciando sistema de gestion de pedidos...\n");
 
-        OrdersRepository repositorio = new OrdersRepository();
+        OrderRepositorio repositorio = new OrderRepositorio();
         List<Order> pedidos;
 
         try {
